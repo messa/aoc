@@ -1,3 +1,7 @@
 - https://github.com/katemihalikova/advent-of-code
 - https://github.com/nappex/AdventOfCode
 - https://github.com/frenzymadness/aoc
+- https://github.com/NelliaS/advent_of_code
+- https://github.com/miiila/aoc2021
+- https://github.com/mantomas/ac2021
+- https://github.com/SveterCZE/advent-of-code-2021
