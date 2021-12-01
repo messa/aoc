@@ -7,3 +7,4 @@
 - https://github.com/SveterCZE/advent-of-code-2021
 - https://github.com/tomasd1/aoc2021
 - https://github.com/abtris/aoc2021
+- https://github.com/clytaemnestra/advent-of-code
