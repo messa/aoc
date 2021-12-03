@@ -42,8 +42,6 @@ print('Part 1:', part1(open('03_input.txt').read()))
 
 def part2(data):
     lines = data.splitlines()
-    size = len(lines[0])
-    assert all(len(line) == size for line in lines)
     ox = find_one(lines, most_common)
     co = find_one(lines, least_common)
     return int(ox, 2) * int(co, 2)
