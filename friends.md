@@ -8,3 +8,4 @@
 - https://github.com/tomasd1/aoc2021
 - https://github.com/abtris/aoc2021
 - https://github.com/clytaemnestra/advent-of-code
+- https://github.com/nukiska/advent_of_code_2021
