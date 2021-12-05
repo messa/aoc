@@ -1,3 +1,7 @@
+'''
+https://adventofcode.com/2021/day/5
+'''
+
 from collections import Counter
 import re
 
@@ -24,7 +28,7 @@ for line in data:
             over[(i, y1)] += 1
 
 p1 = sum(1 for pos, n in over.items() if n >= 2)
-#print(p1)
+print(p1)
 
 del over, p1
 
@@ -50,16 +54,9 @@ for line in data:
             over2[(i, y1)] += 1
     elif abs(x1 - x2) == abs(y1 - y2):
         for i in range(abs(x1 - x2) + 1):
-            print(i, (x1, y1), (x2, y2), (x1 + i * sign(x2 - x1), y1 + i * sign(y2 - y1))  )
+            #print(i, (x1, y1), (x2, y2), (x1 + i * sign(x2 - x1), y1 + i * sign(y2 - y1))  )
             over2[ (x1 + i * sign(x2 - x1), y1 + i * sign(y2 - y1)) ] += 1
 
 
 p2 = sum(1 for pos, n in over2.items() if n >= 2)
 print(p2)
-
-
-
-
-
-
-
