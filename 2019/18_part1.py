@@ -22,9 +22,6 @@ def part1(input_data):
         if i & 1:
             top_step_count, top_state = stack.pop()
         else:
-            if i & 8191 == 0:
-                print('sorting')
-                stack = deque(sorted(stack))
             top_step_count, top_state = stack.popleft()
         if solution_steps is not None and top_step_count >= solution_steps:
             continue
