@@ -1,43 +1,19 @@
-from collections import Counter
-from pprint import pprint
-import re
+'''
+https://adventofcode.com/2021/day/10
+'''
 
 input_data = open('10_input.txt').read().splitlines()
-
-'''
-If a chunk opens with (, it must close with ).
-If a chunk opens with [, it must close with ].
-If a chunk opens with {, it must close with }.
-If a chunk opens with <, it must close with >.
-'''
-
-'''
-A corrupted line is one where a chunk closes with the wrong character - that is, where the characters it opens and closes with do not form one of the four legal pairs listed above.
-'''
 
 def validate(chunks):
     stack = []
     for c in chunks:
         if c in '[({<':
             stack.append(c)
-        elif c == ']':
-            x = stack.pop()
-            if x != '[':
-                return 'bad', c
-        elif c == '>':
-            x = stack.pop()
-            if x != '<':
-                return 'bad', c
-        elif c == '}':
-            x = stack.pop()
-            if x != '{':
-                return 'bad', c
-        elif c == ')':
-            x = stack.pop()
-            if x != '(':
+        elif c in '])}>':
+            if '[({<'.index(stack.pop()) != '])}>'.index(c):
                 return 'bad', c
         else:
-            assert 0, repr(c)
+            raise Exception(f"Unknown character: {c!r}")
     if stack != []:
         return 'incomplete', ''.join(stack)
     return 'ok',
@@ -53,18 +29,15 @@ assert validate('{()()()>') == ('bad', '>')
 assert validate('(((()))}') == ('bad', '}')
 assert validate('<([]){()}[{}])') == ('bad', ')')
 
-
 points = 0
 for line in input_data:
     res = validate(line)
-    if res != True:
-        if res == ('bad', ')'): points += 3
-        if res == ('bad', ']'): points += 57
-        if res == ('bad', '}'): points += 1197
-        if res == ('bad', '>'): points += 25137
+    if res == ('bad', ')'): points += 3
+    if res == ('bad', ']'): points += 57
+    if res == ('bad', '}'): points += 1197
+    if res == ('bad', '>'): points += 25137
 
 print('Part 1:', points)
-
 
 scores = []
 for line in input_data:
@@ -80,17 +53,7 @@ for line in input_data:
         scores.append(score)
 
 scores.sort()
-middle = scores[(len(scores)-1) // 2]
+middle = scores[len(scores) // 2]
 assert sum(m < middle for m in scores) == sum(m > middle for m in scores)
+
 print('Part 2:', middle)
-
-
-
-
-
-
-
-
-
-
-
