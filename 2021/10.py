@@ -48,10 +48,10 @@ assert validate('<([{}])>') == ('ok',)
 assert validate('[<>({}){}[([])<>]]') == ('ok',)
 assert validate('(((((((((())))))))))') == ('ok',)
 
-assert validate('(]') != True
-assert validate('{()()()>') != True
-assert validate('(((()))}') != True
-assert validate('<([]){()}[{}])') != True
+assert validate('(]') == ('bad', ']')
+assert validate('{()()()>') == ('bad', '>')
+assert validate('(((()))}') == ('bad', '}')
+assert validate('<([]){()}[{}])') == ('bad', ')')
 
 
 points = 0
