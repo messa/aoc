@@ -1,12 +1,12 @@
 from pprint import pprint
 from textwrap import dedent
 
-def part1(input_data, step_count=100):
+def part1(input_data, step_count=100, first=False):
     matrix = [[int(c) for c in line] for line in input_data.splitlines()]
     height = len(matrix)
     width = len(matrix[0])
     assert all(len(line) == width for line in matrix)
-    pprint(matrix)
+    #pprint(matrix)
 
     def adjacent(row, col):
         for row_offset in -1, 0, 1:
@@ -19,10 +19,9 @@ def part1(input_data, step_count=100):
                     continue
                 yield (row + row_offset, col + col_offset)
 
-    step_number = 0
     flash_count = 0
     for step_number in range(1, step_count+1):
-        print(f'Step {step_number}:')
+        #print(f'Step {step_number}:')
 
         for row, line in enumerate(matrix):
             for col, cell in enumerate(line):
@@ -36,13 +35,16 @@ def part1(input_data, step_count=100):
                 for col, cell in enumerate(line):
                     if matrix[row][col] > 9 and (row, col) not in have_flashed:
                         have_flashed.add((row, col))
-                        print('Flashed:', row, col)
+                        #print('Flashed:', row, col)
                         any_flashed = True
                         for arow, acol in adjacent(row, col):
-                            print('Inc:', arow, acol)
+                            #print('Inc:', arow, acol)
                             matrix[arow][acol] += 1
             if not any_flashed:
                 break
+
+        if first and len(have_flashed) == width*height:
+            return step_number
 
         for row, line in enumerate(matrix):
             for col, cell in enumerate(line):
@@ -50,7 +52,7 @@ def part1(input_data, step_count=100):
                     matrix[row][col] = 0
                     flash_count += 1
 
-        pprint(matrix)
+        #pprint(matrix)
 
     return flash_count
 
@@ -81,4 +83,6 @@ assert part1(sample_input_1) == 1656
 
 print('Part 1:', part1(open('11_input.txt').read()))
 
+assert part1(sample_input_1, step_count=999999, first=True) == 195
 
+print('Part 2:', part1(open('11_input.txt').read(), step_count=999999, first=True))
