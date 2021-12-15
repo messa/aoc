@@ -1,8 +1,4 @@
-from collections import defaultdict
-from pprint import pprint
-import re
 from textwrap import dedent
-from heapq import heappop, heappush
 from collections import deque
 
 def part1(input_data):
@@ -31,7 +27,7 @@ def part1(input_data):
             if minmap[arow][acol] is None or score < minmap[arow][acol]:
                 minmap[arow][acol] = score
                 stack.append((arow, acol))
-    print(minmap[-1][-1])
+    #print(minmap[-1][-1])
     return minmap[-1][-1]
 
 def part2(input_data):
@@ -41,23 +37,19 @@ def part2(input_data):
     height = len(cave)
     bigcave = [
         [
-            wrap9(
-                cave[row%height][col%width]
-            +  col//width + row//height )
-            for col in range(5 * width)]
+            wrap9(cave[row%height][col%width] + col//width + row//height)
+            for col in range(5 * width)
+        ]
         for row in range(5 * height)
     ]
-    print(cave)
-    print(bigcave)
+    #print(cave)
+    #print(bigcave)
     return part1(bigcave)
-
 
 def wrap9(n):
     while n > 9:
         n -= 9
     return n
-
-
 
 sample_input = dedent('''\
     1163751742
@@ -79,4 +71,3 @@ print('Part 1:', part1(open('15_input.txt').read()))
 assert part2(sample_input) == 315
 
 print('Part 2:', part2(open('15_input.txt').read()))
-
