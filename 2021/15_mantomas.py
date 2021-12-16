@@ -27,8 +27,8 @@ def create_graph(grid):
 
 def neighbours(grid, x_size, y_size, x, y):
     raw_neighbours = [
-        # (x - 1, y),
-        # (x, y - 1),
+        (x - 1, y),
+        (x, y - 1),
         (x, y + 1),
         (x + 1, y),
     ]
@@ -46,12 +46,12 @@ def neighbours(grid, x_size, y_size, x, y):
 def part_one(grid, target_node):
     maze = create_graph(grid)
     start_node = (0, 0)
-    unvisited_nodes = list(maze.keys())
+    unvisited_nodes = [start_node]
     shortest_path = {}
     previous_nodes = {}
 
     max_value = sys.maxsize
-    for node in unvisited_nodes:
+    for node in maze.keys():
         shortest_path[node] = max_value
     # initialize the starting node value with 0
     shortest_path[start_node] = 0
@@ -59,12 +59,9 @@ def part_one(grid, target_node):
     # visit all nodes
     while unvisited_nodes:
         # The code block below finds the node with the lowest score
-        current_min_node = None
-        for node in unvisited_nodes:  # Iterate over the nodes
-            if current_min_node is None:
-                current_min_node = node
-            elif shortest_path[node] < shortest_path[current_min_node]:
-                current_min_node = node
+
+        current_min_node = unvisited_nodes[0]
+        unvisited_nodes.remove(current_min_node)
 
         # current node's neighbors and updating their distances
         neighbors = maze[current_min_node]
@@ -77,9 +74,7 @@ def part_one(grid, target_node):
                 shortest_path[neighbor] = tentative_value
                 # best path to the current node
                 previous_nodes[neighbor] = current_min_node
-
-        # After visiting its neighbors, we mark the node as "visited"
-        unvisited_nodes.remove(current_min_node)
+                unvisited_nodes.append(neighbor)
 
     return shortest_path[target_node]
 
@@ -123,7 +118,7 @@ def main(file_name):
 
 
 if __name__ == '__main__':
-    part_1, part_2 = main("day_15_in.txt")
+    part_1, part_2 = main("15_input.txt")
 
     print(f"Part one: {part_1}")
     print(f"Part two: {part_2}")
