@@ -2,6 +2,25 @@ import sys
 from collections import defaultdict
 
 
+class Heap:
+
+    def __init__(self):
+        self.data = []
+
+    def insert(self, score, item):
+        from heapq import heappush
+        heappush(self.data, (score, item))
+
+    def pop_min(self):
+        from heapq import heappop
+        score, item = self.data[0]
+        heappop(self.data)
+        return item
+
+    def __bool__(self):
+        return bool(self.data)
+
+
 def parse_data(file_name):
     with open(file_name, 'r') as f:
         content = f.readlines()
@@ -46,7 +65,8 @@ def neighbours(grid, x_size, y_size, x, y):
 def part_one(grid, target_node):
     maze = create_graph(grid)
     start_node = (0, 0)
-    unvisited_nodes = [start_node]
+    unvisited_nodes = Heap()
+    unvisited_nodes.insert(0, start_node)
     shortest_path = {}
     previous_nodes = {}
 
@@ -58,10 +78,7 @@ def part_one(grid, target_node):
 
     # visit all nodes
     while unvisited_nodes:
-        # The code block below finds the node with the lowest score
-
-        current_min_node = unvisited_nodes[0]
-        unvisited_nodes.remove(current_min_node)
+        current_min_node = unvisited_nodes.pop_min()
 
         # current node's neighbors and updating their distances
         neighbors = maze[current_min_node]
@@ -74,7 +91,7 @@ def part_one(grid, target_node):
                 shortest_path[neighbor] = tentative_value
                 # best path to the current node
                 previous_nodes[neighbor] = current_min_node
-                unvisited_nodes.append(neighbor)
+                unvisited_nodes.insert(tentative_value, neighbor)
 
     return shortest_path[target_node]
 
