@@ -9,19 +9,40 @@ assert to_bits('D2FE28') == '110100101111111000101000'
 assert to_bits('620080001611562C8802118E34') == '01100010000000001000000000000000000101100001000101010110001011001000100000000010000100011000111000110100'
 
 def part1(input_data):
-    print('part1', input_data)
     bits = to_bits(input_data)
-    pos = 0
-    pos, packet = parse_packet(bits, pos)
+    pos, packet = parse_packet(bits, 0)
     return sum(get_versions(packet))
+
+def part2(input_data):
+    bits = to_bits(input_data)
+    pos, packet = parse_packet(bits, 0)
+    return eval_packet(packet)
 
 def get_versions(packet):
     packet_type, packet_version, packet_data = packet
     yield packet_version
-    if packet_type == 'operator':
+    if packet_type != literal:
         for packet in packet_data:
             yield from get_versions(packet)
 
+def prod(numbers):
+    x = 1
+    for n in numbers:
+        x *= n
+    return x
+
+eval_packet = lambda packet: packet[0](packet[2])
+
+literal = lambda v: v
+operators = {
+    0: lambda packets: sum(eval_packet(p) for p in packets),
+    1: lambda packets: prod(eval_packet(p) for p in packets),
+    2: lambda packets: min(eval_packet(p) for p in packets),
+    3: lambda packets: max(eval_packet(p) for p in packets),
+    5: lambda packets: int(eval_packet(packets[0]) > eval_packet(packets[1])),
+    6: lambda packets: int(eval_packet(packets[0]) < eval_packet(packets[1])),
+    7: lambda packets: int(eval_packet(packets[0]) == eval_packet(packets[1])),
+}
 
 def parse_packet(bits, pos):
     #print(bits[pos:])
@@ -32,7 +53,7 @@ def parse_packet(bits, pos):
     pos += 3
     if packet_type_id == 4:
         pos, value = parse_literal_value(bits, pos)
-        return pos, ('literal', packet_version, value)
+        return pos, (literal, packet_version, value)
     elif packet_type_id != 4:
         length_type_id = bits[pos]
         pos += 1
@@ -47,7 +68,7 @@ def parse_packet(bits, pos):
                 pos, subpacket = parse_packet(bits, pos)
                 subpackets.append(subpacket)
             assert pos == end_pos
-            return pos, ('operator', packet_version, subpackets)
+            return pos, (operators[packet_type_id], packet_version, subpackets)
         elif length_type_id == '1':
             assert pos + 11 < len(bits)
             number_of_subpackets = int(bits[pos:pos+11], 2)
@@ -56,7 +77,7 @@ def parse_packet(bits, pos):
             for i in range(number_of_subpackets):
                 pos, subpacket = parse_packet(bits, pos)
                 subpackets.append(subpacket)
-            return pos, ('operator', packet_version, subpackets)
+            return pos, (operators[packet_type_id], packet_version, subpackets)
         else:
             assert 0
 
@@ -81,14 +102,10 @@ def parse_literal_value(bits, pos):
 
 assert parse_literal_value('101111111000101', 0) == (15, 2021)
 
-assert parse_packet(to_bits('8A004A801A8002F478'), 0) == (69, ('operator', 4, [('operator', 1, [('operator', 5, [('literal', 6, 15)])])]))
-#assert parse_packet(to_bits('620080001611562C8802118E34'), 0) == 12
-#assert parse_packet(to_bits('C0015000016115A2E0802F182340'), 0) == 23
-#assert parse_packet(to_bits('A0016C880162017C3686B18A3D4780'), 0) == 31
-
 assert part1('8A004A801A8002F478') == 16
 assert part1('620080001611562C8802118E34') == 12
 assert part1('C0015000016115A2E0802F182340') == 23
 assert part1('A0016C880162017C3686B18A3D4780') == 31
 
 print('Part 1:', part1(open('16_input.txt').read()))
+print('Part 2:', part2(open('16_input.txt').read()))
