@@ -51,10 +51,11 @@ def apply_orientation(v, o):
     )
 
 
-def part1(input_data, pool):
+def compute(input_data, pool):
     input_data = parse_scanner_results(input_data)
     known_beacons = [input_data[0]]
     remaining_scanners = set(scanner_no for scanner_no in input_data.keys() if scanner_no != 0)
+    scanner_positions = [(0, 0, 0)]
 
     while remaining_scanners:
         print('remaining_scanners:', remaining_scanners)
@@ -68,12 +69,20 @@ def part1(input_data, pool):
                 (matched_orientation, dx, dy, dz), = matching_orientations
                 known_beacons.append([add_offset(apply_orientation(b, matched_orientation), dx, dy, dz) for b in input_data[scanner_no]])
                 remaining_scanners.discard(scanner_no)
+                scanner_positions.append((dx, dy, dz))
 
     all_known_beacons = set()
     for kb_subset in known_beacons:
         for kb in kb_subset:
             all_known_beacons.add(kb)
-    return len(all_known_beacons)
+
+    manhattan_distances = []
+    for sp1 in scanner_positions:
+        for sp2 in scanner_positions:
+            manhattan_distances.append(
+                abs(sp1[0] - sp2[0]) + abs(sp1[1] - sp2[1]) + abs(sp1[2] - sp2[2]))
+
+    return len(all_known_beacons), max(manhattan_distances)
 
 
 def match_orientation(known_beacons, input_data, scanner_no, possible_orientation):
@@ -279,14 +288,11 @@ sample_input_1 = dedent('''\
 
 def main():
     with Pool() as pool:
-        assert part1(sample_input_1, pool=pool) == 79
+        assert compute(sample_input_1, pool=pool) == (79, 3621)
 
-        print('Part 1:', part1(open('19_input.txt').read(), pool=pool))
-
-        def part2(input_data):
-            pass
-
-        print('Part 2:', part2(open('19_input.txt')))
+        part1_res, part2_res = compute(open('19_input.txt').read(), pool=pool)
+        print('Part 1:', part1_res)
+        print('Part 2:', part2_res)
 
 
 if __name__ == '__main__':
