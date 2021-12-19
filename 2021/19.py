@@ -1,7 +1,8 @@
-from collections import defaultdict, Counter
+from functools import partial
 import re
 from pprint import pprint
 from textwrap import dedent
+from multiprocessing import Pool
 
 
 norm = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
@@ -50,7 +51,7 @@ def apply_orientation(v, o):
     )
 
 
-def part1(input_data):
+def part1(input_data, pool):
     input_data = parse_scanner_results(input_data)
     known_beacons = input_data[0]
     remaining_scanners = set(scanner_no for scanner_no in input_data.keys() if scanner_no != 0)
@@ -65,22 +66,24 @@ def part1(input_data):
                 known_beacons = input_data[scanner_no]
                 continue
 
-            found = False
-            for possible_orientation in orientations:
-                beacons = [apply_orientation(b, possible_orientation) for b in input_data[scanner_no]]
-                res = match_beacons(known_beacons, beacons)
-                if res:
-                    dx, dy, dz = res
-                    print('orientation:', possible_orientation, 'offset:', res)
-                    assert not found
-                    found = True
-                    known_beacons.extend(add_offset(b, dx, dy, dz) for b in beacons)
-                    known_beacons = list(set(known_beacons))
-                del beacons
-            if found:
+            matching_orientations = pool.map(partial(match_orientation, known_beacons, input_data, scanner_no), orientations, 1)
+            matching_orientations = [mo for mo in matching_orientations if mo]
+            if matching_orientations:
+                (matched_orientation, dx, dy, dz), = matching_orientations
+                known_beacons.extend(add_offset(apply_orientation(b, matched_orientation), dx, dy, dz) for b in input_data[scanner_no])
+                known_beacons = list(set(known_beacons))
                 remaining_scanners.discard(scanner_no)
 
     return len(known_beacons)
+
+
+def match_orientation(known_beacons, input_data, scanner_no, possible_orientation):
+    beacons = [apply_orientation(b, possible_orientation) for b in input_data[scanner_no]]
+    res = match_beacons(known_beacons, beacons)
+    if res:
+        dx, dy, dz = res
+        print('orientation:', possible_orientation, 'offset:', res)
+        return (possible_orientation, dx, dy, dz)
 
 
 def match_beacons(known_beacons, beacons):
@@ -110,27 +113,6 @@ def find_matching_beacons(known_beacons, beacons, dx, dy, dz, kbi=0, bi=0, have=
             if kb == add_offset(b, dx, dy, dz):
                 num += 1
     return num
-
-    '''
-    assert isinstance(beacons, list)
-    if have < 12 and known_beacons[kbi] == add_offset(beacons[bi], dx, dy, dz):
-        have += 1
-        if kbi < len(known_beacons) - 1:
-            res = find_matching_beacons(known_beacons, beacons, dx, dy, dz, kbi=kbi+1, bi=0, have=have)
-            if res > have:
-                have = res
-    if have < 12 and bi < len(beacons) - 1:
-        res = find_matching_beacons(known_beacons, beacons, dx, dy, dz, kbi=kbi, bi=bi+1, have=have)
-        if res > have:
-            have = res
-    return have
-    '''
-
-
-
-
-
-
 
 
 def parse_scanner_results(input_data):
@@ -295,14 +277,17 @@ sample_input_1 = dedent('''\
     30,-46,-14
 ''')
 
-assert part1(sample_input_1) == 79
+def main():
+    with Pool() as pool:
+        assert part1(sample_input_1, pool=pool) == 79
 
-print('Part 1:', part1(open('19_input.txt').read()))
+        print('Part 1:', part1(open('19_input.txt').read(), pool=pool))
 
-def part2(input_data):
-    pass
+        def part2(input_data):
+            pass
+
+        print('Part 2:', part2(open('19_input.txt')))
 
 
-print('Part 2:', part2(open('19_input.txt')))
-
-
+if __name__ == '__main__':
+    main()
