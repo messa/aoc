@@ -53,37 +53,37 @@ def apply_orientation(v, o):
 
 def part1(input_data, pool):
     input_data = parse_scanner_results(input_data)
-    known_beacons = input_data[0]
+    known_beacons = [input_data[0]]
     remaining_scanners = set(scanner_no for scanner_no in input_data.keys() if scanner_no != 0)
 
     while remaining_scanners:
         print('remaining_scanners:', remaining_scanners)
         for scanner_no in list(remaining_scanners):
-
             print('Scanner:', scanner_no)
-            if known_beacons is None:
-                assert scanner_no == 0
-                known_beacons = input_data[scanner_no]
-                continue
+            assert scanner_no != 0
 
             matching_orientations = pool.map(partial(match_orientation, known_beacons, input_data, scanner_no), orientations, 1)
             matching_orientations = [mo for mo in matching_orientations if mo]
             if matching_orientations:
                 (matched_orientation, dx, dy, dz), = matching_orientations
-                known_beacons.extend(add_offset(apply_orientation(b, matched_orientation), dx, dy, dz) for b in input_data[scanner_no])
-                known_beacons = list(set(known_beacons))
+                known_beacons.append([add_offset(apply_orientation(b, matched_orientation), dx, dy, dz) for b in input_data[scanner_no]])
                 remaining_scanners.discard(scanner_no)
 
-    return len(known_beacons)
+    all_known_beacons = set()
+    for kb_subset in known_beacons:
+        for kb in kb_subset:
+            all_known_beacons.add(kb)
+    return len(all_known_beacons)
 
 
 def match_orientation(known_beacons, input_data, scanner_no, possible_orientation):
     beacons = [apply_orientation(b, possible_orientation) for b in input_data[scanner_no]]
-    res = match_beacons(known_beacons, beacons)
-    if res:
-        dx, dy, dz = res
-        print('orientation:', possible_orientation, 'offset:', res)
-        return (possible_orientation, dx, dy, dz)
+    for kb_subset in known_beacons:
+        res = match_beacons(kb_subset, beacons)
+        if res:
+            dx, dy, dz = res
+            print('orientation:', possible_orientation, 'offset:', res)
+            return (possible_orientation, dx, dy, dz)
 
 
 def match_beacons(known_beacons, beacons):
